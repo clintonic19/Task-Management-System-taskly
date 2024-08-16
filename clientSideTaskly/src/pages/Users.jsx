@@ -65,7 +65,6 @@ const Users = () => {
           setOpenDialog(false);
           
           }, 500);
-
   } catch (error) {
     console.log(error)
       toast.error( error?.data?.message || error.message )
