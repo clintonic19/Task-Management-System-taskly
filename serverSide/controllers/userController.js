@@ -9,39 +9,42 @@ const bcrypt = require("bcryptjs");
 const registerUser = async (req, res) => {
   try {
     const { name, title, email, role, password, isAdmin } = req.body;
-  
+
     const user = new User({
-        // name: req.body.name,
-        // title: req.body.title,
-        // email: req.body.email,
-        // role: req.body.role,
-        // password: req.body.password,
-        // isAdmin: req.body.isAdmin,
-        name, title, email, role, password, isAdmin,
-    })
-    const existUser = await User.findOne({ email:email });
+      // name: req.body.name,
+      // title: req.body.title,
+      // email: req.body.email,
+      // role: req.body.role,
+      // password: req.body.password,
+      // isAdmin: req.body.isAdmin,
+      name,
+      title,
+      email,
+      role,
+      password,
+      isAdmin,
+    });
+    const existUser = await User.findOne({ email: email });
 
     // CHECK IF USER EXISTS
     if (existUser) {
-      res.status(400).json({ status: false, message: "User already exists" }); 
+      res.status(400).json({ status: false, message: "User already exists" });
     }
 
     //CREATE A NEW USER
     await User.create(user);
     res.status(201).json(user);
-    
+
     // CREATE TOKEN FOR NEW USER
     if (user) {
       isAdmin ? createJWTToken(res, user._id) : null;
       user.password = undefined;
-      res.status(201).json( user );
+      res.status(201).json(user);
     } else {
-       res
-        .status(400)
-        .json({ status: false, message: "Invalid user data" });
+      res.status(400).json({ status: false, message: "Invalid user data" });
     }
   } catch (error) {
-     res.status(500).json({ status: false, message: error.message });
+    res.status(500).json({ status: false, message: error.message });
     return;
   }
 };
@@ -51,20 +54,27 @@ const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email: email });
+    console.log(user);
 
     // CHECK IF USER EXISTS
     if (!user) {
-      res.status(401).json({ status: false, message: "Invalid email and password" });
+      res
+        .status(401)
+        .json({ status: false, message: "Invalid email and password" });
     }
 
     // CHECK IF USER IS ACTIVE
     if (!user?.isActive) {
-      res.status(201).json({ status: false, message: "Account deactivated, please contact Admin" });
-       return;
+      res.status(201).json({
+        status: false,
+        message: "Account deactivated, please contact Admin",
+      });
+      return;
     }
 
     // CHECK IF PASSWORD IS CORRECT
-    const isPasswordCorrect = await user.matchPassword(password, user.password);
+    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+    console.log(isPasswordCorrect);
     // if (!isPasswordCorrect) {
     //   //  res.send({ message: "Invalid email or password" });
     //   res.status(201).json({ message: "Incorrect Email and Password " });
@@ -77,23 +87,20 @@ const loginUser = async (req, res) => {
 
     // CREATE JWT TOKEN
     if (user && isPasswordCorrect) {
+      user.password = undefined;
       createJWTToken(res, user._id);
 
-      user.password = undefined;
-
-      res.status(201).json({ user });
-      
+      // res.status(201).json({ user });
     } else {
-       res
+      res
         .status(401)
         .json({ status: false, message: "Invalid email and password" });
-        return;
+      return;
     }
-  
   } catch (error) {
-    console.log(error)
-     res.status(500).json({ message: error.message });
-     return;
+    console.log(error);
+    res.status(500).json({ message: error.message });
+    return;
   }
 };
 
@@ -116,11 +123,8 @@ const logoutUser = async (req, res) => {
 // GET TEAM MEMBERS  LIST
 const getTeamList = async (req, res) => {
   try {
-    const team = await User.find().select(
-      "name title role email isActive"
-    );
+    const team = await User.find().select("name title role email isActive");
     res.status(200).json({ team });
-
   } catch (error) {
     return res.status(500).json({ status: true, message: error.message });
   }
@@ -134,13 +138,10 @@ const getNotifyList = async (req, res) => {
       team: userId,
       isRead: { $nin: [userId] },
     })
-      .populate("team", "name email")
       .populate("task", "title")
       .select("team text task notiType");
     res.status(200).json({ NotifyUser });
-    
   } catch (error) {
-    
     return res.status(500).json({ message: error.message });
   }
 };
@@ -165,21 +166,22 @@ const updateUserProfile = async (req, res) => {
     if (user) {
       user.name = req.body.name || user.name;
       user.title = req.body.title || user.title;
-      // user.email = req.body.email || user.email;
       user.role = req.body.role || user.role;
+      // user.email = req.body.email || user.email;
       // user.isActive = req.body.isActive || user.isActive;
       // user.isAdmin = req.body.isAdmin || user.isAdmin;
 
-      const updatedUser = await user.save();
-      updatedUser.password = undefined;
-      return res.status(200).json({ status: true, message: "Profile Updated Successfully", user: updatedUser});
-
+      const updatedUser = await User.save();
+      user.password = undefined;
+      res.status(200).json({
+        status: true,
+        message: "Profile Updated Successfully",
+        user: updatedUser,
+      });
     } else {
-
-      return res.status(404).json({ status: false, message: "User Not Found" });
+      res.status(404).json({ status: false, message: "User Not Found" });
     }
   } catch (error) {
-
     return res.status(500).json({ message: error.message });
   }
 };
@@ -192,19 +194,19 @@ const markNotifyAsRead = async (req, res) => {
 
     // CHECK TO MARK ALL NOTIFICATION AS READ
     if (isReadType === "all") {
-      const notify = await Notify.updateMany(
+      await Notify.updateMany(
         { team: userId, isRead: { $nin: [userId] } },
         { $push: { isRead: userId } },
         { new: true }
       );
-      return res.status(200).json({ notify });
+      // return res.status(200).json({ notify });
     } else {
-      const notify = await Notify.findByIdAndUpdate(
+      await Notify.findByIdAndUpdate(
         { _id: id, isRead: { $nin: [userId] } },
         { $push: { isRead: userId } },
         { new: true }
       );
-      return res.status(200).json({ notify, status: true, message: "Done" });
+      res.status(200).json({ status: true, message: "Done" });
     }
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -233,9 +235,9 @@ const changePassword = async (req, res) => {
       user.password = req.body.password;
       await user.save();
       user.password = undefined;
-      return res.status(200).json({ message: "Password changed successfully" });
+      res.status(200).json({ message: "Password changed successfully" });
     } else {
-      return res.status(404).json({ message: "User Not Found" });
+      res.status(404).json({ message: "User Not Found" });
     }
   } catch (error) {
     return res.status(500).json({ message: error.message });

@@ -148,6 +148,7 @@ const Dashboard = () => {
         _id: "2",
         label: "COMPLETED",
         total: totals["completed"] || 0,
+        // totals: ["completed"] || 0,
         icon: <MdAdminPanelSettings />,
         bg: "bg-[#0f766e]",
     },
@@ -156,6 +157,7 @@ const Dashboard = () => {
         _id: "3",
         label: "IN-PROGRESS ",
         total: totals["in progress"] || 0,
+        // totals: ["in progress"] || 0,
         icon: <LuClipboardEdit />,
         bg: "bg-[#f59e0b]",
     },
@@ -164,6 +166,7 @@ const Dashboard = () => {
         _id: "4",
         label: "PENDING",
         total: totals["todo"],
+        // totals: ["todo"],
         icon: <FaArrowsToDot />,
         bg: "bg-red-600" || 0,
     }

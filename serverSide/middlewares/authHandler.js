@@ -6,10 +6,11 @@ const User = require("../models/userModels");
 const protectedRoute = async (req, res, next) => {
   try {
     let token = req.cookies.token;
+    // console.log(token);
     if (token) {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       const user = await User.findById(decoded.userId).select("isAdmin email");
-
+      
       req.user = {
         email: user.email,
         isAdmin: user.isAdmin,
@@ -21,7 +22,6 @@ const protectedRoute = async (req, res, next) => {
         .status(401)
         .json({ status: false, message: "Not authorized, Please Login" });
     }
-    
   } catch (error) {
     console.error(error);
     return res

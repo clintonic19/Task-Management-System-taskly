@@ -19,14 +19,17 @@ import Navbar from './components/Navbar'
 // import clsx from 'clsx'
 
 import Mobile from './components/MobileSidebar'
+import { useSelector } from 'react-redux'
+import { toggleSideBar } from './redux/slices/authSlice';
 
 
-// const {user} = useSelector(state => state.auth);
-//   const location = useLocation();
 
 function Layout() {
+
+  const {user} = useSelector(state => state.auth);
+    const location = useLocation();
   
-  return  (
+  return user ? (
     <div className='w-full h-screen flex flex-col md:flex-row'>
       <div className='w-1/5 h-screen bg-white sticky top-0 hidden md:block'>
         <Sidebar />
@@ -42,10 +45,9 @@ function Layout() {
         </div>
       </div>
     </div>
-  ) 
-  //  (
-  //     <Navigate to='/login' state={{ from: location }} replace />
-  //   );
+  ) : (
+      <Navigate to='/login' state={{ from: location }} replace />
+    );
   }
 
 
