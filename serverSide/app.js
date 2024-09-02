@@ -9,32 +9,33 @@ const { routeNotFound, errorHandler } = require("./middlewares/errorHandler");
 const routes = require("./routes/index.js");
 // const userRoute = require("./routes/userRoute");
 
-// Create express instance
-const app = express();
-
 // Load environment variables from .env file
 dotenv.config();
+
+// Create express instance
+const app = express();
 
 //Database connection
 connectDB();
 
-// PORT is the port number where the server will run
+// PORT is the port number where the server will RUN
 const PORT = process.env.PORT || 5000;
 
-// Middlewares
-app.use(
-  cors({
+// Middlewares MIDDLEWARES 
+app.use(cors(
+  {
     origin: ["http://localhost:3000", "http://localhost:3001"],
     
     methods: ["GET", "POST", "PUT", "DELETE"],
+
     credentials: true,
-  })
-);
+  }
+));
 
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
-app.use(bodyParser.urlencoded({ extended: true }));
+// app.use(bodyParser.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 
 // Routes

@@ -21,11 +21,12 @@ const protectedRoute = async (req, res, next) => {
         .status(401)
         .json({ status: false, message: "Not authorized, Please Login" });
     }
+    
   } catch (error) {
     console.error(error);
     return res
       .status(401)
-      .json({ status: false, message: "Not authorized, Please Login" });
+      .json({ status: false, message: "Not Allowed, Please Login" });
   }
 };
 

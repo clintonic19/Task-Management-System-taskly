@@ -13,6 +13,7 @@ import  {tasks } from '../assets/DummyData.js';
 import BoardView  from '../components/DashboardView';
 import Table from "../components/subTasks/ViewList.jsx";
 import AddTaskForm from '../components/subTasks/AddTaskForm.jsx';
+import { useGetTasksQuery } from "../redux/slices/api/taskApiSlice.js";
 
 const TABS = [
   {title: "Board View", icon: <MdGridView/>},
@@ -33,7 +34,13 @@ const Task = () => {
   const [loading, setLoading] = useState(false);
 
   const status = params?.status || " ";
-  return loading ? (   
+
+  const { data, isLoading } = useGetTasksQuery({
+    strQuery: status, isTrashed: "", search: "",
+  })
+
+  return isLoading ? (   
+  // return loading ? (   
     <div className='py-10'>
       <Loading />
     </div>
@@ -69,10 +76,12 @@ const Task = () => {
       {/* DISPLAY CARD INTO THE TASK URL */}
       
       {
-        selected === 0 ? <div><BoardView tasks={tasks}/> 
+        // selected === 0 ? <div><BoardView tasks={data?.tasks}/> 
+         selected === 0 ? <div><BoardView tasks={tasks}/> 
         </div> :<div className='w-full'>
           
           {/* LIST VIEW ITEMS HERE OR TASKS IN A TABLE */}
+          {/* <Table tasks={data?.tasks} /> */}
           <Table tasks={tasks} />
         </div>       
       }

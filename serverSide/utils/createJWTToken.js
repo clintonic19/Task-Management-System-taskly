@@ -10,7 +10,7 @@ const createJWTToken = (async (res, userId) =>{
         res.cookie('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV !== 'development',
-            sameSite: 'none', //PREVENT CSRF ATTACK
+            sameSite: 'none', //PREVENT CSRF ATTACKS
             maxAge: 1000 * 60 * 60 * 24, // 1day
         });
         res.status(200).json({ status: true, token });

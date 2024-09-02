@@ -1,11 +1,12 @@
-import React, {PureComponent} from 'react';
+import React from 'react';
 
-import { XAxis, YAxis, CartesianGrid, Tooltip, Area, AreaChart, } from 'recharts';
+import { Area, AreaChart, CartesianGrid, Tooltip, XAxis, YAxis, } from 'recharts';
 
-import { chartData,  } from '../assets/DummyData';
+import { chartData, } from '../assets/DummyData';
 // import { RandomColor,  } from "../utils/Index";
 
 const Rechart = () => {
+// const Rechart = ({data}) => {
  
   return (
     <>

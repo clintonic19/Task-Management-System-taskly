@@ -13,6 +13,7 @@ router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.post("/logout", logoutUser);
 
+// GET REQUEST AND NOTIFY USER FOR NEW TASK
 router.get("/get-team", protectedRoute, isAdminRoute, getTeamList);
 router.get("/notify", protectedRoute, getNotifyList);
 

@@ -12,7 +12,7 @@ const Button = ({ icon, label, type = "button", className, onClick }) => {
 };
 
 Button.propTypes = {
-    label: PropTypes.string.isRequired,
+    label: PropTypes.string,
     type: PropTypes.string,
     className: PropTypes.string,
     icon: PropTypes.node,

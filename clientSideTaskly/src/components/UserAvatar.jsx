@@ -10,13 +10,15 @@ import { toast } from 'sonner';
 import { useLogoutMutation } from '../redux/slices/api/authApiSlice';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../redux/slices/authSlice';
+import AddUser from './AddUser';
+import ChangePassword from './ChangePassword';
 
 const UserAvatar = () => {
-  const [setOpen] = useState(false);
-  const [setOpenPassword] = useState(false);
+  const [ open, setOpen ] = useState(false);
+  const [ openPassword, setOpenPassword ] = useState(false);
   const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   const [ logoutUser ] = useLogoutMutation()
 
@@ -92,6 +94,12 @@ const UserAvatar = () => {
           </Transition>
         </Menu>
       </div>
+
+      {/* ADD USER */}
+     < AddUser open={open} setOpen={setOpen} userData={user}/>
+
+      {/* CHANGE PASSWORD */}
+      < ChangePassword open={openPassword} setOpen={setOpenPassword} />
     </>
   );
 }

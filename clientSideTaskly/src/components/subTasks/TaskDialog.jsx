@@ -10,6 +10,9 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 import AddTaskForm from './AddTaskForm';
 import AddSubTask from './AddSubTask';
 import ConfirmationMessage from '../Confirm';
+import { useDuplicateTaskMutation, useTrashTaskMutation } from '../../redux/slices/api/taskApiSlice';
+import { toast } from 'sonner';
+import { set } from 'react-hook-form';
 
 
 const TaskDialog = ({ task }) => {
@@ -20,10 +23,55 @@ const TaskDialog = ({ task }) => {
   const [openDialog, setOpenDialog] = useState(false);
 
   const navigate = useNavigate();
+  const [ deleteTask ] = useTrashTaskMutation();
+  const [ duplicateTask ] = useDuplicateTaskMutation();
 
-  const duplicateHandler = () => {};
-  const deleteClicks = () => {};
-  const deleteHandler = () => {};
+  // DUPLICATE TASK FUNCTION
+  const duplicateHandler = async() => {
+    try {
+       await duplicateTask({id: task?._id});
+      // const result = await duplicateTask({id: task?._id}).unwrap();
+      // toast.success(result?.message);
+      toast.success("Task Duplicated Successfully");
+
+      setTimeout(() => {
+        setOpenDialog(false);
+        window.location.reload();
+      }, 500)
+      
+    } catch (error) {
+      console.log(error);
+      toast.error(error?.data?.message || error.message);
+      
+    }
+
+  };
+
+  // DELETE TASK FUNCTION
+  const deleteClicks = () => {
+    setOpenDialog(true);
+  };
+
+  // DELETE TASK FUNCTION
+  const deleteHandler = async() => {
+    try {
+      
+      await deleteTask({id: task?._id, isTrashed: "trash"});
+      
+      // toast.success(res?.message);
+      toast.success("Task Deleted Successfully");
+      setOpenDialog(false);
+
+      setTimeout(() => {
+        setOpenDialog(false);
+        window.location.reload();
+      }, 500)
+      
+    } catch (error) {
+      console.log(error);
+      toast.error(error?.data?.message || error.message);
+    }
+  };
 
   const items = [
     {

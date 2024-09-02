@@ -10,6 +10,8 @@ import UserInfo from '../UsersInfo';
 import PropTypes from 'prop-types';
 import Button from '../Button';
 import ConfirmationMessage from '../Confirm';
+import { useTrashTaskMutation } from '../../redux/slices/api/taskApiSlice';
+import AddTaskForm from './AddTaskForm';
 
 
 const Icons = {
@@ -38,15 +40,41 @@ const ViewList = ({ tasks }) => {
       })
     )
   };
+
   const [openDialog, setOpenDialog] = useState(false);
   const [selected, setSelected] = useState(null);
+  const [openEdit, setOpenEdit] = useState(false);
+
+  const [ trashTask ] = useTrashTaskMutation();
 
   const deleteClicks = (id) => {
     setSelected(id);
     setOpenDialog(true);
   };
 
-  const deleteHandler = () => {};
+  const editTaskHandler = (el) => {
+    setSelected(el);
+    setOpenEdit(true);
+   };
+
+  // DELETE TASK FUNCTION FROM LIST VIEW USERS 
+  const deleteHandler = async() => {
+    try {
+      await trashTask({id: selected, isTrashed: "trash"});
+      // await trashTask({id: selected, isTrashed: "trash"}).unwrap();
+      toast.success("Task Deleted Successfully");
+      setOpenDialog(false);
+
+      setTimeout(() => {
+        setOpenDialog(false);
+        window.location.reload();
+      }, 500)
+      
+    } catch (error) {
+      console.log(error);
+      toast.error("An error occurred ");
+    }
+  };
 
   // TABLE HEAD TO DISPLAY IN VIEW LIST  CONTENTS
   const TableHeader = () => (
@@ -134,6 +162,7 @@ const ViewList = ({ tasks }) => {
           className='text-orange-600 hover:text-orange-500 sm:px-0 text-sm md:text-base'
           label='Edit'
           type='button'
+          onClick={() => editTaskHandler(task)}
         />
         {/* DELETE TASK */}
         <Button
@@ -166,6 +195,13 @@ const ViewList = ({ tasks }) => {
         open={openDialog}
         setOpen={setOpenDialog}
         onClick={deleteHandler}
+      />
+
+<AddTaskForm
+        open={openEdit}
+        setOpen={setOpenEdit}
+        task={selected}
+        key={new Date().getTime()}
       />
     </>
   )

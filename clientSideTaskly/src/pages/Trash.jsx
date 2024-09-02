@@ -12,6 +12,9 @@ import { RandomColor, PRIOTISETASK, taskType, formatDate } from "../utils/Index"
 
 import ConfirmationMessage from '../components/Confirm';
 import AddUser from '../components/AddUser';
+import { useDeleteRestoreTaskMutation, useGetTasksQuery } from '../redux/slices/api/taskApiSlice';
+import Loading from '../components/Loader';
+import { toast } from 'sonner';
 
 
 
@@ -28,6 +31,54 @@ const Trash = () => {
   const [msg, setMsg] = useState(null);
   const [type, setType] = useState("delete");
   const [selected, setSelected] = useState("");
+
+  // GET ALL TASK QUERY
+  const { data, isLoading, refetch } = useGetTasksQuery({
+    strQuery: "", isTrashed: "true", search: "",
+  })
+
+  const [ deleteRestoreTask ] = useDeleteRestoreTaskMutation();
+
+  // DELETE AND RESTORE HANDLER
+  const deleteRestoreHandler = async () => {
+    try {
+      let result;
+
+      switch (type) {
+        case "delete":
+          await deleteRestoreTask({id: selected, actionType: "delete"}).unwrap();
+          break;
+
+          case "deleteAll":
+            await deleteRestoreTask({id: selected, actionType: "deleteAll"}).unwrap();
+            break;
+
+        case "restore":
+          await deleteRestoreTask({id: selected, actionType: "restore"}).unwrap();
+          break;
+
+        case "restoreAll":
+          await deleteRestoreTask({id: selected, actionType: "restoreAll"}).unwrap();
+          break;
+
+        default:
+          "Invalid Action";
+          break;
+      }
+
+      toast.success(result.message);
+      setOpenDialog(false);
+      refetch();
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+
+     
+      } catch (error) {
+        console.log(error);      
+      }
+  };
 
   const deleteAllClick = () => {
     setType("deleteAll");
@@ -53,6 +104,15 @@ const Trash = () => {
     setMsg("Do you want to restore the selected item?");
     setOpenDialog(true);
   };
+
+  // LOADING SPINNER
+  if(isLoading)
+    return(
+      <div className='py-10'>
+        < Loading />
+      </div>
+    ); 
+  
 
 // TABLE HEAD FOR TRASH
   const TableHeader = () => (
@@ -122,6 +182,7 @@ const Trash = () => {
               className='flex flex-row-reverse gap-1 items-center  text-black text-sm md:text-base rounded-md 2xl:py-2.5'
               onClick={() => restoreAllClick()}
             />
+            
             <Button
               label='Delete All'
               icon={<MdDelete className='text-lg hidden md:flex' />}
@@ -135,7 +196,8 @@ const Trash = () => {
             <table className='w-full mb-5'>
               <TableHeader />
               <tbody>
-                {tasks?.map((trash, id) => (
+                {/* {data?tasks?.map((trash, id) => ( */}
+               {tasks?.map((trash, id) => (
                   <TableRow key={id} item={trash} />
                 ))}
               </tbody>
@@ -144,7 +206,7 @@ const Trash = () => {
         </div>
       </div>
 
-      {/* <AddUser open={open} setOpen={setOpen} /> */}
+      <AddUser open={open} setOpen={setOpen} />
 
       <ConfirmationMessage
         open={openDialog}

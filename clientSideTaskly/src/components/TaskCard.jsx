@@ -117,6 +117,7 @@ const TaskCard = ({task}) => {
         </div>
            {/*FORM TO ADD SUB-TASK  */}
            <AddSubTask open={open} setOpen={setOpen} id={task._id}/>
+           {/* <AddSubTask open={open} setOpen={setOpen} id={task._id}/> */}
     </>
   )};
 

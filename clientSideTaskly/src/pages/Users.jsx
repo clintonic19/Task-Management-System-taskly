@@ -1,20 +1,24 @@
-import  'react'
-import { useState } from 'react'
-import PropTypes from 'prop-types';
-import Title from '../components/Title';
-import Button from '../components/Button';
-import { MdAdd } from 'react-icons/md';
-import { getInitials } from '../utils/Index';
-import {users} from '../assets/DummyData';
 import clsx from 'clsx';
+import PropTypes from 'prop-types';
+import 'react';
+import { useState } from 'react';
+import { MdAdd } from 'react-icons/md';
+import { users } from '../assets/DummyData';
+import Button from '../components/Button';
+import Title from '../components/Title';
+import { getInitials } from '../utils/Index';
 // import AddTaskForm from '../components/subTasks/AddTaskForm';
 // import AddSubTask from '../components/subTasks/AddSubTask';
+import { toast } from 'sonner';
+import AddUser from '../components/AddUser';
 import ConfirmationMessage from '../components/Confirm';
 import UserInfo from '../components/UsersInfo';
-import AddUser from '../components/AddUser';
-import { useDeleteUserMutation, useGetTeamListQuery, 
-          useUserActionMutation } from '../redux/slices/api/userApiSlice';
-import { toast } from 'sonner';
+import {
+  useDeleteUserMutation, useGetTeamListQuery,
+  useUserActionMutation
+} from '../redux/slices/api/userApiSlice';
+// import axios from "axios";
+// import url from "../redux/slices/api/userApiSlice";
 
 const Users = () => {
 
@@ -24,21 +28,40 @@ const Users = () => {
   const [selected, setSelected] = useState(null);
 
   //GET TEAM LIST (GET REQUEST )
-  const { data, isLoading, refetch} = useGetTeamListQuery();
+  const { data, isLoading, refetch } = useGetTeamListQuery();
+  console.log(data)
 
   const [ deleteUser ] = useDeleteUserMutation();
   const [ userAction ] = useUserActionMutation();
 
+  // const [users, setUsers] = useState([])
+
+//AXIOS FUNCTION
+// useEffect(() =>{
+//   axios.get("http://localhost:8000/api/user/get-team")
+//   .then(users => setUsers(users?.data))
+//   .catch(err => console.log(err))
+
+// }, [])
+
+// useEffect(() => {
+//   fetch('http://localhost:3000/team')
+//     .then(response => response.json())
+//     .then(data => setUsers(data))
+//     .catch(error => console.error('Error fetching data:', error));
+// }, []);
+
   //ACTION HANDLER FUNCTION FOR USER
-  const userActionHandler = async () => {
+  const userActionHandler = async (data) => {
     try {
       const result = await userAction({
         isActive : !selected?.isActive,
         id: selected?._id,
       });
+      console.log(data)
 
       refetch()
-      toast.success(result?.data?.message)
+      toast.success(result.data.message)
       
           setSelected(null);
 
@@ -55,16 +78,17 @@ const Users = () => {
   // DELETE HANDLER FUNCTION
   const deleteHandler = async () => {
   try {
-    const result = await deleteUser(selected)
-    refetch()
-    toast.success("User Deleted Successfully")
-      
+    const result = await deleteUser(selected);
+    
+    refetch();
+    toast.success("User Deleted Successfully");  
           setSelected(null);
 
           setTimeout(() =>{
           setOpenDialog(false);
           
           }, 500);
+
   } catch (error) {
     console.log(error)
       toast.error( error?.data?.message || error.message )
@@ -172,8 +196,8 @@ const Users = () => {
             <TableHeader />
             <tbody>
               {/* MAP USER DATA  */}
-              {/* { data?.data?.map((user, index) => ( */}
-              {users.users?.map((user, index) => (
+               {/* { data?.data?.map((user, index) => (  */}
+            {users.users?.map((user, index) => (
                 <TableRow key={ index } user={ user } />
               )) }
             </tbody>

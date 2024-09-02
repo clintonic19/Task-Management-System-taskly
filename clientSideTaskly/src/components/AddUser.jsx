@@ -1,4 +1,5 @@
 import 'react';
+import PropTypes from 'prop-types';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import Button from './Button';
@@ -10,8 +11,13 @@ import { useRegisterMutation } from '../redux/slices/api/authApiSlice';
 import { toast } from 'sonner';
 import { useUpdateUserMutation } from '../redux/slices/api/userApiSlice';
 import { setCredentials } from '../redux/slices/authSlice';
+import { useState } from 'react';
+
 
 const AddUser = ({ open, setOpen, userData }) => {
+  // { open, setOpen, userData }
+  // const [open, setOpen, userData] = useState(false);
+ 
 
     let defaultValues = userData ?? {};
     const { user } = useSelector ((state) => state.auth);
@@ -34,18 +40,22 @@ const AddUser = ({ open, setOpen, userData }) => {
   // ADD OR UPDATE USER FUNCTION BUTTON
   const handleOnSubmit = async (data) => {
     try {
+
       //CHECK IF USER EXIST OR ADD NEW USER
       if(userData){
         const result = await updateUser(data);
-        // toast.success("User Profile Updated Successfully");
-        toast.success(result?.message);
+        // const result = await updateUser(data).unwrap();
+        toast.success("User Profile Updated Successfully");
+        // toast.success(result?.message);
 
         //CHECK USER DATE
         if(userData?._id === user._id){
           dispatch(setCredentials({ ...result.user}))
         }
+
       }else{
-        await addNewUser({ ...data, password: data.email })
+        // await addNewUser({ ...data, password: data.email }).unwrap();
+        await addNewUser({ ...data, password: data.email });
         // const result = await addNewUser( data );
         toast.success("Added New User Successfully");
       }
@@ -53,8 +63,8 @@ const AddUser = ({ open, setOpen, userData }) => {
       setTimeout(() => {
         setOpen(false)
       }, 1100);
-    } catch (error) {
-      
+
+    } catch (error) {    
       toast.error( "An Error Occured Please try Again");
     }
   };
@@ -62,7 +72,7 @@ const AddUser = ({ open, setOpen, userData }) => {
 
   return (
     <>
-        <ModalWrapper open={open} setOpen={setOpen}>
+        <ModalWrapper open={ open } setOpen={ setOpen } >
         <form onSubmit={handleSubmit(handleOnSubmit)} className=''>
           <DialogTitle
             as='h2'
@@ -133,8 +143,8 @@ const AddUser = ({ open, setOpen, userData }) => {
               <Button
                 type='button'
                 className='bg-white px-5 text-sm font-semibold rounded-lg text-gray-900 sm:w-auto'
-                onClick={() => setOpen(false)}
-                label='CANCEL'
+                onClick={() => setOpen(false) }
+                label='Cancel'
               />
             </div>
           )}
@@ -142,7 +152,14 @@ const AddUser = ({ open, setOpen, userData }) => {
       </ModalWrapper>
       
     </>
-  )
-}
 
+
+  )
+ 
+}
+AddUser.propTypes = {
+  open: PropTypes.boolean,
+  setOpen: PropTypes.func,
+  userData: PropTypes.object,
+};
 export default AddUser

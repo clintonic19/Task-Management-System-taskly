@@ -249,6 +249,7 @@ const createSubTask = async (req, res) => {
   try {
     const { title, tag, date } = req.body;
     const { id } = req.params;
+    console.log(req.params);
 
     const newSubTask = {
       title,
@@ -355,14 +356,14 @@ const deleteRestoreTask =  (async (req, res) => {
 // });
 
 module.exports = {
-  createTask,
-  getTasks,
-  getTask,
-  duplicateTask,
-  TaskActivity,
-  dashboard,
-  createSubTask,
-  updateTask,
-  trashTask,
-  deleteRestoreTask,
+    createTask,
+    getTasks,
+    getTask,
+    duplicateTask,
+    TaskActivity,
+    dashboard,
+    createSubTask,
+    updateTask,
+    trashTask,
+    deleteRestoreTask,
 };

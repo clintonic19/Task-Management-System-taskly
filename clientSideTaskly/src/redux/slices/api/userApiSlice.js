@@ -23,8 +23,8 @@ export const userApiSlice = apiSlice.injectEndpoints({
                 credentials: "include",
             }),
         }),
-        // DELETE USER
 
+        // DELETE USER
         deleteUser: builder.mutation({
             query: (id) => ({
                 url: `${USER_URL}/${id}`,
@@ -44,9 +44,40 @@ export const userApiSlice = apiSlice.injectEndpoints({
             }),
         }),
 
+        // GET NOTIFICATION LIST
+        getNotifyList: builder.query({
+            query: () => ({
+                url: `${USER_URL}/notify`,
+                method: "GET",
+                // body: data,
+                credentials: "include",
+            }),
+        }),
+
+        // MARK NOTIFICATION AS READ
+        markNotifyAsRead: builder.mutation({
+            query: (data) => ({
+                url: `${USER_URL}/read-notify?isReadType=${data.type}&id=${data?.id}`,
+                method: "PUT",
+                body: data,
+                credentials: "include",
+            }),
+        }),
+
+        // CHANGE PASSWORD
+        changePassword: builder.mutation({
+            query: (data) => ({
+                url: `${USER_URL}/change-password`,
+                method: "PUT",
+                body: data,
+                credentials: "include",
+            }),
+            }),
+
 
     }),
 });
 
 export const { useUpdateUserMutation, useGetTeamListQuery,
-     useDeleteUserMutation, useUserActionMutation } = userApiSlice;
+     useDeleteUserMutation, useUserActionMutation, useGetNotifyListQuery,
+     useMarkNotifyAsReadMutation, useChangePasswordMutation } = userApiSlice;

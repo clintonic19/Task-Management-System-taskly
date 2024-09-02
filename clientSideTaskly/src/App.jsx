@@ -118,8 +118,8 @@ const App = () => {
           <Route path='/tasks/:id' element={<TaskDetails />} />
         </Route>
 
-        <Route path='/login' element={<Login />} />
         {/* <Route path='/register' element={<Register />} /> */}
+        <Route path='/login' element={<Login />} />
       </Routes>
 
       <Toaster richColors />

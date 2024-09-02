@@ -9,6 +9,8 @@ import { useSelector } from 'react-redux';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
 import { Link } from 'react-router-dom';
+import { useGetTeamListQuery, useMarkNotifyAsReadMutation } from '../redux/slices/api/userApiSlice';
+import ViewNotification from './ViewNotification';
 // import { IoIosNotificationsOutline } from "react-icons/io";
 // import { Link } from "react-router-dom";
 
@@ -53,23 +55,37 @@ const data = [
 const Icons = {
     alert:(
     <HiBellAlert className='h-5 w-5 text-gray-600 group-hover:text-orange-600'/>
-
     ),
 
     message:(
         <BiSolidMessageRounded className='h-5 w-5  text-gray-600 group-hover:text-orange-600'/>
         ),
 };
-const Notification = () => {
 
 const Notification = () => {
+
     const [open, setOpen] = useState(false);
     const [selected, setSelected] = useState(false);
     // const { user } = useSelector((state) => state.auth);
+   
+
+    const {data, refetch} = useGetTeamListQuery();
+    const [ markAsRead ] = useMarkNotifyAsReadMutation();
+    
+    //READ HANDLER
+    const readHandler = async({type, id}) =>{
+      // await markAsRead({type, id}).unwrap();
+      await markAsRead({type, id})
+      refetch();
+    }
+
+    //VIEW HANDLER
+    const viewHandler = async(el) => {
+      setSelected(el);
+      readHandler("one", el._id);
+      setOpen(true);
     };
 
-    const readHandler =() =>{}
-    const viewHandler = () => {};
     const callsToAction = [
         {name: "Cancel", href: "#", icon: ""},
 
@@ -85,6 +101,7 @@ const Notification = () => {
           <div className='w-8 h-8 flex items-center justify-center text-gray-800 relative'>
             <IoIosNotificationsOutline className='text-4xl ' />
             {data?.length > 0 && (
+            // {data?.length > 0 && (
               <span className='absolute text-center top-2 right-1 text-sm text-white font-semibold w-4 h-4 rounded-full bg-red-600'>
                 {data?.length}
               </span>
@@ -152,10 +169,10 @@ const Notification = () => {
           </PopoverPanel>
         </Transition>
       </Popover>
+      <ViewNotification open={open} setOpen={setOpen} el={selected}/>
     </>
     
   )
-
 }
 
 

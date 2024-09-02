@@ -4,6 +4,8 @@ import Textbox from '../Textbox';
 import { DialogTitle } from '@headlessui/react';
 import ModalWrapper from '../DynamicForm';
 import { useForm } from 'react-hook-form';
+import { useCreateSubTaskMutation } from '../../redux/slices/api/taskApiSlice';
+import { toast } from 'sonner';
 
 const AddSubTask = ({ open, setOpen, id }) => {
     const {
@@ -11,20 +13,22 @@ const AddSubTask = ({ open, setOpen, id }) => {
         handleSubmit,
         formState: { errors },
       } = useForm();
-    
-      // const [addSbTask] = useCreateSubTaskMutation();
-    
+
+      const [ addSubTask ] = useCreateSubTaskMutation();
+      
       const handleOnSubmit = async (data) => {
-        // try {
-        //   const res = await addSbTask({ data, id }).unwrap();
-        //   toast.success(res.message);
-        //   setTimeout(() => {
-        //     setOpen(false);
-        //   }, 500);
-        // } catch (err) {
-        //   console.log(err);
-        //   toast.error(err?.data?.message || err.error);
-        // }
+        try {
+          await addSubTask({ data, id }).unwrap();
+          // toast.success(res.message);
+          toast.success("SubTask Added Successfully");
+
+          setTimeout(() => {
+            setOpen(false);
+          }, 500);
+        } catch (err) {
+          console.log(err);
+          toast.error(err?.data?.message || err.error);
+        }
       };
     
       return (
@@ -38,6 +42,7 @@ const AddSubTask = ({ open, setOpen, id }) => {
                 {/* ADD SUB-TASK FORM */}
                 <h2>CREATE SUB-TASK</h2>
               </DialogTitle>
+
               <div className='mt-2 flex flex-col gap-6'>
                 <Textbox
                   placeholder='Sub-Task title'

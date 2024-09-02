@@ -1,19 +1,23 @@
 
-import 'react';
-import { users } from '../assets/DummyData';
-import { MdAdminPanelSettings, MdKeyboardDoubleArrowDown, MdOutlineKeyboardDoubleArrowUp, 
-  MdKeyboardArrowDown, MdKeyboardArrowUp, MdKeyboardDoubleArrowUp} from 'react-icons/md';
-import {LuClipboardEdit} from 'react-icons/lu';
-import { FaNewspaper, FaUsers } from 'react-icons/fa';
-import { FaArrowsToDot } from 'react-icons/fa6';
-import moment from 'moment';
 import clsx from 'clsx';
+import moment from 'moment';
 import PropTypes from 'prop-types';
-import { RandomColor, PRIOTISETASK, taskType, getInitials } from "../utils/Index";
+import 'react';
+import { FaNewspaper } from 'react-icons/fa';
+import { FaArrowsToDot } from 'react-icons/fa6';
+import { LuClipboardEdit } from 'react-icons/lu';
+import {
+  MdAdminPanelSettings,
+  MdKeyboardArrowDown, MdKeyboardArrowUp, MdKeyboardDoubleArrowUp
+} from 'react-icons/md';
+import { users } from '../assets/DummyData';
+import { PRIOTISETASK, RandomColor, taskType } from "../utils/Index";
 // import Card from '../components/Card';
+import Loading from '../components/Loader';
 import Rechart from '../components/Rechart';
 import UserInfo from '../components/UsersInfo';
 import UserTable from '../components/UserTable';
+import { useGetDashboardStatsQuery } from '../redux/slices/api/taskApiSlice';
 
 
 const TaskTable = ({ tasks }) => {
@@ -41,7 +45,6 @@ const TaskTable = ({ tasks }) => {
   );
 
   // TABLE ROW TO DISPLAY IN VIEW LIST  CONTENTS
-
   const TableRow = ({ task }) => (
  
     <tr className='border-b border-gray-300 text-gray-600 hover:bg-gray-300/10'>
@@ -87,7 +90,6 @@ const TaskTable = ({ tasks }) => {
 
     
   );
-  
 
   TableRow.propTypes = {
     task: PropTypes.shape({
@@ -99,7 +101,6 @@ const TaskTable = ({ tasks }) => {
     })
   };
   
- 
   return(
     <>
       <div className='items-center flex w-full md:w-10/8 bg-white px-4 md:px-6 pt-2 pb-4 shadow-md rounded'>
@@ -113,20 +114,24 @@ const TaskTable = ({ tasks }) => {
             }
           </tbody>
         </table>
-      </div> 
-      
-         
-    </>
-    
+      </div>     
+    </>   
   )
-
-  
 };
 
 
 const Dashboard = () => {
  
-  const totals = users.tasks
+  const {data, isLoading } = useGetDashboardStatsQuery();
+  
+  if(isLoading)
+    return(
+      <div className='py-10'>
+        < Loading />
+      </div>
+    );
+  // const totals =  data?.tasks
+  const totals = users?.tasks
   
   // USER STATISTICS DATA TO CHECK PROGRESS OF TASKS
   const stats = [
@@ -134,6 +139,7 @@ const Dashboard = () => {
         _id: "1",
         label: "TOTAL TASK",
         totals: users?.totalTasks || 0,
+        // totals: data?.totalTasks || 0,
         icon: <FaNewspaper />,
         bg: "bg-orange-600",
     },
@@ -197,7 +203,8 @@ const Dashboard = () => {
               
               </div> */}
               {/* RECHART DASHBOARD */}
-              <Rechart />  
+              <Rechart data={data?.graphData} />  
+              {/* <Rechart />   */}
             </div>
 
             <div className="w-full flex flex-cols md: flex-row gap-4 2xL:gap-10 py-8">

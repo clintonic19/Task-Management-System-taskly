@@ -3,44 +3,46 @@ const express = require("express");
 const User = require("../models/userModels");
 const Notify = require("../models/notifyModel");
 const { createJWTToken } = require("../utils/createJWTToken");
+const bcrypt = require("bcryptjs");
 
 //REGISTER USERS
 const registerUser = async (req, res) => {
   try {
     const { name, title, email, role, password, isAdmin } = req.body;
-
-    const existUser = await User.findOne({ email });
+  
+    const user = new User({
+        // name: req.body.name,
+        // title: req.body.title,
+        // email: req.body.email,
+        // role: req.body.role,
+        // password: req.body.password,
+        // isAdmin: req.body.isAdmin,
+        name, title, email, role, password, isAdmin,
+    })
+    const existUser = await User.findOne({ email:email });
 
     // CHECK IF USER EXISTS
     if (existUser) {
-       res.send({ status: false, message: "User already exists" });
+      res.status(400).json({ status: false, message: "User already exists" }); 
     }
 
     //CREATE A NEW USER
-    const user = await User.create({
-      name,
-      title,
-      email,
-      role,
-      password,
-      isAdmin,
-    });
-
-    // CREATE NEW USER
-    if ( user ) {
+    await User.create(user);
+    res.status(201).json(user);
+    
+    // CREATE TOKEN FOR NEW USER
+    if (user) {
       isAdmin ? createJWTToken(res, user._id) : null;
-
       user.password = undefined;
-
-      // return res.status(201).json( user );
-      return res.send( user );
+      res.status(201).json( user );
     } else {
-      return res
+       res
         .status(400)
         .json({ status: false, message: "Invalid user data" });
     }
   } catch (error) {
-    return res.status(500).json({ status: false, message: error.message });
+     res.status(500).json({ status: false, message: error.message });
+    return;
   }
 };
 
@@ -48,51 +50,64 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-
-    const user = await User.findOne({ email:email });
+    const user = await User.findOne({ email: email });
 
     // CHECK IF USER EXISTS
     if (!user) {
-       res.send({ status: false, message: "Invalid email and password" });
+      res.status(401).json({ status: false, message: "Invalid email and password" });
     }
 
     // CHECK IF USER IS ACTIVE
     if (!user?.isActive) {
-       res.send({ status: false, message: "Account deactivated, please contact admin" });
+      res.status(201).json({ status: false, message: "Account deactivated, please contact Admin" });
+       return;
     }
 
     // CHECK IF PASSWORD IS CORRECT
-    const isPasswordCorrect = await user.matchPassword(password);
-    if (!isPasswordCorrect) {
-       res.send({ message: "Invalid email or password" });
-    }
+    const isPasswordCorrect = await user.matchPassword(password, user.password);
+    // if (!isPasswordCorrect) {
+    //   //  res.send({ message: "Invalid email or password" });
+    //   res.status(201).json({ message: "Incorrect Email and Password " });
+    // }
+
+    // const passwordValid = await bcrypt.compare(password, user.password);
+    // if (!passwordValid) {
+    //   res.status(201).json({ msg: "Incorrect Email and Password " });
+    // }
 
     // CREATE JWT TOKEN
     if (user && isPasswordCorrect) {
       createJWTToken(res, user._id);
+
       user.password = undefined;
-       res.send({ user });
+
+      res.status(201).json({ user });
+      
     } else {
        res
         .status(401)
         .json({ status: false, message: "Invalid email and password" });
+        return;
     }
+  
   } catch (error) {
     console.log(error)
      res.status(500).json({ message: error.message });
+     return;
   }
 };
 
 // LOGOUT USER
 const logoutUser = async (req, res) => {
   try {
-    res.clearCookie("token", "", {
+    // res.clearCookie("token", "", {
+    res.cookie("token", "", {
       httpOnly: true,
       // secure: process.env.NODE_ENV === "production",
       // sameSite: "None",
       expires: new Date(0),
     });
-   res.send({ message: "Logout successful" });
+    res.status(201).json({ message: "Logout successful" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -105,8 +120,9 @@ const getTeamList = async (req, res) => {
       "name title role email isActive"
     );
     res.status(200).json({ team });
+
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    return res.status(500).json({ status: true, message: error.message });
   }
 };
 
@@ -118,11 +134,13 @@ const getNotifyList = async (req, res) => {
       team: userId,
       isRead: { $nin: [userId] },
     })
-      .populate("team", "name, email")
+      .populate("team", "name email")
       .populate("task", "title")
       .select("team text task notiType");
     res.status(200).json({ NotifyUser });
+    
   } catch (error) {
+    
     return res.status(500).json({ message: error.message });
   }
 };
@@ -155,10 +173,13 @@ const updateUserProfile = async (req, res) => {
       const updatedUser = await user.save();
       updatedUser.password = undefined;
       return res.status(200).json({ status: true, message: "Profile Updated Successfully", user: updatedUser});
+
     } else {
+
       return res.status(404).json({ status: false, message: "User Not Found" });
     }
   } catch (error) {
+
     return res.status(500).json({ message: error.message });
   }
 };

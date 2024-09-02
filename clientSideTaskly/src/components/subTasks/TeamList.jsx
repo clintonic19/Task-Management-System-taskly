@@ -7,6 +7,7 @@ import { Listbox, ListboxButton, ListboxOption, ListboxOptions, Transition } fro
 import clsx from "clsx";
 import { Fragment, useState, useEffect } from "react";
 import { getInitials } from '../../utils/Index';
+import { useGetTeamListQuery } from '../../redux/slices/api/userApiSlice';
 
 const TeamList = ({team, setTeam}) => {
 
@@ -15,6 +16,7 @@ TeamList.propTypes = {
   setTeam: PropTypes.func.isRequired,
 };
     const userData = users.users
+    const { data, isLoading } = useGetTeamListQuery()
     const [selectedUsers, setSelectedUsers] = useState([]);
     
     const changeHandle = (el) => {
@@ -24,12 +26,13 @@ TeamList.propTypes = {
 
     useEffect(() => {
         if (team?.length < 1 ){
+          //  ( data) && setSelectedUsers([data[0]])
            ( userData) && setSelectedUsers([userData[0]])
         }else{
 
             setSelectedUsers(team);
         }
-    },[])
+    },[ isLoading ])
 
   return (
     <div>
@@ -57,11 +60,12 @@ TeamList.propTypes = {
             as={Fragment}
             leave='transition ease-in duration-100'
             leaveFrom='opacity-100'
-            leaveTo='opacity-0'
+            leaveTo='opacity-0' 
           >
             {/* REMOVE ACTIVE AND USE FOCUS */}
             <ListboxOptions className='z-50 absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1
              ring-black/5 focus:outline-none sm:text-sm'>
+              {/* {data?.map((user, index) => ( */}
               {userData?.map((user, index) => (
                 <ListboxOption
                   key={index}
