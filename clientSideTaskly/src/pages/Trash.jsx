@@ -33,7 +33,7 @@ const Trash = () => {
   const [selected, setSelected] = useState("");
 
   // GET ALL TASK QUERY
-  const { data, isLoading, refetch } = useGetTasksQuery({
+  const { isLoading, refetch } = useGetTasksQuery({
     strQuery: "", isTrashed: "true", search: "",
   })
 
@@ -41,6 +41,7 @@ const Trash = () => {
 
   // DELETE AND RESTORE HANDLER
   const deleteRestoreHandler = async () => {
+    // e.preventDefault();
     try {
       let result;
 
@@ -66,7 +67,7 @@ const Trash = () => {
           break;
       }
 
-      toast.success(result.message);
+      toast.success("Done");
       setOpenDialog(false);
       refetch();
 

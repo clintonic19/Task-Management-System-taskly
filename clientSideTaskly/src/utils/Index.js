@@ -24,20 +24,20 @@ export const formatDate = (date) => {
     return formattedDate;
   }
   // TO GET THE INITIAL NAME OF USERS
-  // export function getInitials(fullName) {
-  //   const names = fullName.split(" ");
+  export function getInitials(fullName) {
+    const names = fullName?.split(", ");
   
-  //   const initials = names.slice(0, 2).map((name) => name[0].toUpperCase());
+    const initials = names?.slice(0, 2).map((name) => name[0].toUpperCase());
   
-  //   const initialsStr = initials.join("");
+    const initialsStr = initials?.join("");
   
-  //   return initialsStr;
-  // }
+    return initialsStr;
+  }
 
-  export const getInitials = (name) => {
-    if (!name) return ''; // Return an empty string if name is undefined
-    return name.split(' ').map((part) => part[0]).join('').toUpperCase();
-  };
+  // export const getInitials = (name) => {
+  //   if (!name) return ''; // Return an empty string if name is undefined
+  //   return name.split(' ').map((part) => part[0]).join('').toUpperCase();
+  // };
   
   export const PRIOTISETASK = {
     high: "text-red-600",

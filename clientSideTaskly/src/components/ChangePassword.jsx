@@ -21,8 +21,8 @@ const ChangePassword = ({ open, setOpen }) => {
         }
 
         try {
-            // const result = await changePassword(data).unwrap();
-            const result = await changePassword(data);
+             await changePassword(data).unwrap();
+            // await changePassword(data);
             toast.success("New password has been set successfully")
 
             setTimeout(() =>{

@@ -20,7 +20,6 @@ router.put("/create-subTask/:id", protectedRoute, isAdminRoute,  createSubTask);
 router.put("/update/:id", protectedRoute, isAdminRoute,  updateTask);
 router.put("/:id", protectedRoute, isAdminRoute,  trashTask);
 
-
 // DELETE ROUTES
 router.delete("/delete-restore/:id?", protectedRoute, isAdminRoute,  deleteRestoreTask);
 

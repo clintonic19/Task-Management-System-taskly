@@ -11,7 +11,7 @@ import { useRegisterMutation } from '../redux/slices/api/authApiSlice';
 import { toast } from 'sonner';
 import { useUpdateUserMutation } from '../redux/slices/api/userApiSlice';
 import { setCredentials } from '../redux/slices/authSlice';
-import { useState } from 'react';
+// import { useState } from 'react';
 
 
 const AddUser = ({ open, setOpen, userData }) => {
@@ -30,9 +30,10 @@ const AddUser = ({ open, setOpen, userData }) => {
     // const isLoading = false,
     // const isUpdating = false; 
 
+    const dispatch = useDispatch();
+
     //REGISTER / ADD NEW USER
     const [ addNewUser, { isLoading }] = useRegisterMutation();
-    const dispatch = useDispatch();
 
     //UPDATE USER
     const [ updateUser, { isLoading: isUpdating } ] = useUpdateUserMutation()
@@ -43,19 +44,19 @@ const AddUser = ({ open, setOpen, userData }) => {
 
       //CHECK IF USER EXIST OR ADD NEW USER
       if(userData){
-        const result = await updateUser(data);
-        // const result = await updateUser(data).unwrap();
+        // const result = await updateUser(data);
+        const result = await updateUser(data).unwrap();
         toast.success("User Profile Updated Successfully");
         // toast.success(result?.message);
 
-        //CHECK USER DATE
+        //CHECK USER DATA
         if(userData?._id === user._id){
           dispatch(setCredentials({ ...result.user}))
         }
 
       }else{
-        // await addNewUser({ ...data, password: data.email }).unwrap();
-        await addNewUser({ ...data, password: data.email });
+         await addNewUser({ ...data, password: data.email }).unwrap();
+        // await addNewUser({ ...data, password: data.email });
         // const result = await addNewUser( data );
         toast.success("Added New User Successfully");
       }
@@ -68,7 +69,6 @@ const AddUser = ({ open, setOpen, userData }) => {
       toast.error( "An Error Occured Please try Again");
     }
   };
-
 
   return (
     <>

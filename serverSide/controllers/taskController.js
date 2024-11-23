@@ -1,5 +1,4 @@
 const express = require("express");
-
 const { protectedRoute, isAdminRoute } = require("../middlewares/authHandler");
 const User = require("../models/userModels");
 const Task = require("../models/taskModels");
@@ -11,14 +10,14 @@ const createTask = async (req, res) => {
 
     const { userId } = req.user;
 
-    const { title, team, stage, date, priority, assest } = req.body;
+    const { title, team, stage, date, priority, assets } = req.body;
 
     // CREATE A MESSAGE TO THE USER
      let text = "New Task created and Assigned to you";
      if(team?.length > 1){
-        text = text + ` and ${team.length - 1} more members`;
+        text = text + ` and ${team?.length - 1} others`;
      }
-      text = text + ` the Task Priority is ${priority} and the Due Date is ${new Date (date.toString())} Weldon!!!`;
+      text = text + ` The Task Priority is ${priority} and the Due Date is ${ new Date(date.toString())} Weldon!!!`;
 
       const activity = {
         type: "assigned",
@@ -32,7 +31,7 @@ const createTask = async (req, res) => {
       stage: stage?.toLowerCase(),
       date,
       priority: priority?.toLowerCase(),
-      assest,
+      assets,
       activities: activity,
     });
 
@@ -49,7 +48,7 @@ const createTask = async (req, res) => {
 
     await Notify.create({ team: task.team, text: text, task: task._id });
 
-    return res.status(201).json({ status: true, message: "Task Created Successfully", task});
+    res.status(201).json({ status: true, task, message: "Task Created Successfully"});
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
@@ -63,12 +62,12 @@ const duplicateTask = async (req, res) => {
 
     const newTask = await Task.create({
       ...task,
-      title: `Copy of ${task.title}`,
+      title:  `Copy of ${task.title}`,
     });
 
     newTask.team = task.team;
     newTask.SubTask = task.SubTask;
-    newTask.assests = task.assests;
+    newTask.assets = task.assets;
     newTask.priority = task.priority;
     newTask.stage = task.stage;
 
@@ -88,11 +87,11 @@ const duplicateTask = async (req, res) => {
 
     await Notify.create({
       team: task.team,
-      message: message,
       task: newTask._id,
+      message: message,
     });
 
-    return res
+     res
       .status(201)
       .json({ message: "Task Duplicated Successfully", task });
   } catch (error) {
@@ -112,18 +111,17 @@ const TaskActivity = async (req, res) => {
     const data = {
       type,
       activity,
-      user: userId,
+      by: userId,
     };
 
-    task.activity.push(data);
+    task.activities.push(data);
     await task.save();
-    return res.status(201).json({
+    res.status(200).json({
       status: true,
       message: "Task Activity Posted Successfully",
-      task,
     });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    return res.status(400).json({ message: error.message });
   }
 };
 
@@ -142,13 +140,13 @@ const dashboard = async (req, res) => {
           isTrashed: false,
           team: { $all: [userId] },
         })
-          .populate({ path: "team", select: " name role title email" })
+          .populate({ path: "team", select: " name role title " })
           .sort({ _id: -1 });
 
     //FETCHING USER DETAILS
     const users = await User.find({ isActive: true })
       .select("name role title isAdmin createdAt")
-      .limit(8)
+      .limit(5)
       .sort({ _id: -1 });
 
     //CALCULATE COUNTS FOR DASHBOARD
@@ -168,13 +166,13 @@ const dashboard = async (req, res) => {
       allTasks.reduce((result, task) => {
         const { priority } = task;
         result[priority] = (result[priority] || 0) + 1;
-        return result;
-      }, {})
-    ).map(([name, total]) => ({ name, total }));
+        return result; 
+      }, {}))
+      .map(([name, total]) => ({ name, total }));
 
     // CALCULATE ALL TASK
     const total = allTasks.length;
-    const last10Task = allTasks.slice(0, 10);
+    const last10Task = allTasks?.slice(0, 10);
 
     const sum = {
       total,
@@ -184,7 +182,7 @@ const dashboard = async (req, res) => {
       graphData: data,
     };
 
-    return res.status(201).json({
+    res.status(200).json({
       status: true,
       message: " Done ",
       ...sum,
@@ -214,7 +212,7 @@ const getTasks = async (req, res) => {
 
     const tasks = await queryResult;
 
-    return res.status(200).json({ status: true, tasks });
+     res.status(200).json({ status: true, tasks });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
@@ -235,9 +233,8 @@ const getTask = async (req, res) => {
         select: "name",
       })
       .sort({ _id: -1 });
-
-    return res
-      .status(201)
+    res
+      .status(200)
       .json({ message: "Task Created Successfully", tasks });
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -259,11 +256,10 @@ const createSubTask = async (req, res) => {
 
     const subTask = await Task.findById(id);
     subTask.SubTask.push(newSubTask);
-
     await subTask.save();
 
-    return res
-      .status(201)
+    res
+      .status(200)
       .json({ message: "SubTask Created Successfully", tasks });
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -287,7 +283,7 @@ const updateTask =  (async (req, res) => {
 
         await task.save()
 
-        return res
+     res
       .status(201)
       .json({ status: true, message: "Task Updated Successfully",  });
 
@@ -306,7 +302,7 @@ const trashTask =  (async (req, res) => {
         task.isTrashed = true;
         await task.save()
 
-        return res
+    res
       .status(201)
       .json({ status: true, message: "Task Trashed Successfully",  });
 
@@ -330,15 +326,16 @@ const deleteRestoreTask =  (async (req, res) => {
            await Task.deleteMany({isTrashed: true})
 
         }else if (actionType === "restore"){
-            const result = await Task.findById(id);
-            result.isTrashed = false;
-            await result.save();
+          // const result = await Task.findById(id);
+          const result = await Task.findByIdAndUpdate(id);
+          result.isTrashed = false;
+             result.save();
             
         }else if (actionType === "restoreAll"){
            await Task.updateMany({ isTrashed: true }, {  $set: {isTrashed: false} });        
         }
-
-        return res
+        
+      res
       .status(201)
       .json({ status: true, message: " Done ",  });
 

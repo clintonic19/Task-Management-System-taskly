@@ -74,15 +74,15 @@ const Notification = () => {
     
     //READ HANDLER
     const readHandler = async({type, id}) =>{
-      // await markAsRead({type, id}).unwrap();
-      await markAsRead({type, id})
+      await markAsRead({type, id}).unwrap();
+      // await markAsRead({type, id})
       refetch();
     }
 
     //VIEW HANDLER
     const viewHandler = async(el) => {
       setSelected(el);
-      readHandler("one", el._id);
+      readHandler("one", el?._id);
       setOpen(true);
     };
 

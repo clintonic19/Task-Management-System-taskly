@@ -33,10 +33,17 @@ const AddTaskForm = ({open, setOpen, task }) => {
     const [ createTask, { isLoading } ] = useCreateTaskMutation();
     const [ updateTask, {isLoading: isUpdating }] = useUpdateTaskMutation();
 
-    const URLS = task?.assets ? [ ...task.assets] : [];
+    const URLS = task?.assets ? [ ...task?.assets] : [];
+
+    const [assets, setAssets] = useState([]);
+      
+    const [uploading, setUploading] = useState(false);
+
+    const uploadedFileURLs = [];
       
       // SUBMIT UPLOADE FUNCTION
-      const submitHandler = async(data) => {
+      const submitHandler = async(data, e) => {
+        e.preventDefault();
 
         for( const file of assets ){
 
@@ -60,9 +67,9 @@ const AddTaskForm = ({open, setOpen, task }) => {
             team, stage, priority,
           };
 
-          // const res = task?._id ? await updateTask({ ...newData, _id: task._id }).unwrap() : await createTask(newData).unwrap();
-          const res = task?._id ? await updateTask({ ...newData, _id: task._id }) : await createTask(newData);
-          toast.success(res.message);
+          const res = task?._id ? await updateTask({ ...newData, _id: task?._id }).unwrap() : await createTask(newData).unwrap();
+          // const res = task?._id ? await updateTask({ ...newData, _id: task._id }) : await createTask(newData);
+          toast.success("New Task Created Successfully");
 
           setTimeout(() =>{
             setOpen(false);     
@@ -84,12 +91,7 @@ const AddTaskForm = ({open, setOpen, task }) => {
         task?.priority?.toUpperCase() || Priority[2]
       );
 
-      const [assets, setAssets] = useState([]);
-      
-      const [uploading, setUploading] = useState(false);
-
-      const uploadedFileURLs = [];
-
+    
       const handleSelect = (e) => {
         setAssets(e.target.files);
       };

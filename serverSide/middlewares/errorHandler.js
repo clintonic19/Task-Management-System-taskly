@@ -16,6 +16,7 @@ const errorHandler = (err, req, res, next) => {
     //     stack: process.env.NODE_ENV === 'production' ? null : error.stack,
     // });
 
+
      if(err.name === 'CastError' && err.kind === 'ObjectId'){
         statusCode = 404;
         message = 'Resource not found';

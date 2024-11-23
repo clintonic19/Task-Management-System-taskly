@@ -20,12 +20,14 @@ const UserAvatar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  // LOGOUT FUNCTION
   const [ logoutUser ] = useLogoutMutation()
 
   // LOGOUT FUNCTION
   const logoutHandler = async () => {
     try {
-      await logoutUser()
+      await logoutUser().unwrap()
+      // await logoutUser()
       dispatch(logout())
       navigate("/login")
     } catch (error) {

@@ -6,22 +6,22 @@ const User = require("../models/userModels");
 const protectedRoute = async (req, res, next) => {
   try {
     let token = req.cookies.token;
-    // console.log(token);
     if (token) {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       const user = await User.findById(decoded.userId).select("isAdmin email");
-      
       req.user = {
         email: user.email,
         isAdmin: user.isAdmin,
         userId: decoded.userId,
       };
       next();
-    } else {
-      return res
-        .status(401)
-        .json({ status: false, message: "Not authorized, Please Login" });
-    }
+    } 
+  
+    // else {
+    //   return res
+    //     .status(401)
+    //     .json({ status: false, message: "Not authorized, Please Login" });
+    // }
   } catch (error) {
     console.error(error);
     return res
@@ -40,5 +40,23 @@ const isAdminRoute = (req, res, next) => {
       .json({ status: false, message: "Not authorized, Admin only" });
   }
 };
+
+// const authMiddleware = (req, res, next) => {
+//   try {
+//     const token = req.cookies.token;
+//     if (!token) {
+//       res
+//       .status(401)
+//       .json({ status: false, message: "Not authorized, Admin only" });
+//     }
+//     const decoded = jwt.verify(token, secretJwt);
+//     req.userId = decoded.userId;
+//     next();
+//   } catch (error) {
+//       res
+//       .status(401)
+//       .json({ status: false, message: "Not authorized, Admin only" });
+//   }
+// };
 
 module.exports = { protectedRoute, isAdminRoute };

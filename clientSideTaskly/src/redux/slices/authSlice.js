@@ -1,15 +1,17 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
+// import {user} from "../../assets/DummyData"
 
 // const navigate = useNavigate();
 
 const initialState = {
-  user: localStorage.getItem("userInfo")
+    user: localStorage.getItem("userInfo")
     ? JSON.parse(localStorage.getItem("userInfo"))
     : null,
-
-  isSideBarOpen: false,
+    
+    isSideBarOpen: false,
 };
+
 
 const authSlice = createSlice({
   name: "auth",
@@ -21,7 +23,7 @@ const authSlice = createSlice({
       state.user = action.payload;
       localStorage.setItem("userInfo", JSON.stringify(action.payload));
 
-    //   console.log(action.payload.status);
+      console.log(action.payload.status);
     //   if (action.payload.status) {
     //     navigate("/dashboard");
     //   }

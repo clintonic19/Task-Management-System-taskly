@@ -77,12 +77,13 @@ const Task = () => {
       
       {
         // selected === 0 ? <div><BoardView tasks={data?.tasks}/> 
-         selected === 0 ? <div><BoardView tasks={tasks}/> 
+        //  selected === 0 ? <div><BoardView tasks={tasks}/> 
+         selected !== 1 ? <div><BoardView tasks={data?.tasks}/> 
         </div> :<div className='w-full'>
           
           {/* LIST VIEW ITEMS HERE OR TASKS IN A TABLE */}
-          {/* <Table tasks={data?.tasks} /> */}
-          <Table tasks={tasks} />
+          <Table tasks={data?.tasks} />
+          {/* <Table tasks={tasks} /> */}
         </div>       
       }
       </Tabs>

@@ -28,24 +28,23 @@ const registerUser = async (req, res) => {
 
     // CHECK IF USER EXISTS
     if (existUser) {
-      res.status(400).json({ status: false, message: "User already exists" });
+      return res.status(400).json({ status: false, message: "User already exists" });
     }
 
     //CREATE A NEW USER
     await User.create(user);
-    res.status(201).json(user);
+    return res.status(201).json(user);
 
     // CREATE TOKEN FOR NEW USER
     if (user) {
       isAdmin ? createJWTToken(res, user._id) : null;
-      user.password = undefined;
-      res.status(201).json(user);
+      // user.password = undefined;
+      return res.status(201).json(user);
     } else {
-      res.status(400).json({ status: false, message: "Invalid user data" });
+      return res.status(400).json({ status: false, message: "Invalid user info" });
     }
   } catch (error) {
-    res.status(500).json({ status: false, message: error.message });
-    return;
+    return res.status(500).json({ status: false, message: error.message });
   }
 };
 
@@ -53,54 +52,43 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email: email });
-    console.log(user);
+    const user = await User.findOne({ email });
 
-    // CHECK IF USER EXISTS
+    // CHECK IF USER NOT EXIST
     if (!user) {
-      res
-        .status(401)
-        .json({ status: false, message: "Invalid email and password" });
+      return res
+        .status(400)
+        .json({ status: false, message: "Incorrect email and password" });
     }
 
     // CHECK IF USER IS ACTIVE
     if (!user?.isActive) {
-      res.status(201).json({
+      return res.status(401).json({
         status: false,
         message: "Account deactivated, please contact Admin",
       });
-      return;
     }
 
     // CHECK IF PASSWORD IS CORRECT
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
-    console.log(isPasswordCorrect);
-    // if (!isPasswordCorrect) {
-    //   //  res.send({ message: "Invalid email or password" });
-    //   res.status(201).json({ message: "Incorrect Email and Password " });
-    // }
 
-    // const passwordValid = await bcrypt.compare(password, user.password);
-    // if (!passwordValid) {
-    //   res.status(201).json({ msg: "Incorrect Email and Password " });
-    // }
+    if (!isPasswordCorrect) {
+      return res.status(401).json({ message: "Incorrect Email and Password " });
+    }
 
     // CREATE JWT TOKEN
     if (user && isPasswordCorrect) {
-      user.password = undefined;
-      createJWTToken(res, user._id);
-
-      // res.status(201).json({ user });
+      // user.password = undefined;
+      const token = await createJWTToken(res, user._id);
+      // createJWTToken(res, user._id);
+      return res.status(200).json({ user, token });
     } else {
-      res
+      return res
         .status(401)
-        .json({ status: false, message: "Invalid email and password" });
-      return;
+        .json({ status: false, message: "Incorrect email and password" });
     }
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: error.message });
-    return;
+    return res.status(500).json({ message: error.message });
   }
 };
 
@@ -114,7 +102,7 @@ const logoutUser = async (req, res) => {
       // sameSite: "None",
       expires: new Date(0),
     });
-    res.status(201).json({ message: "Logout successful" });
+    res.status(200).json({ message: "Logout successful" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -123,7 +111,7 @@ const logoutUser = async (req, res) => {
 // GET TEAM MEMBERS  LIST
 const getTeamList = async (req, res) => {
   try {
-    const team = await User.find().select("name title role email isActive");
+    const team = await User.find().select("name title role isActive");
     res.status(200).json({ team });
   } catch (error) {
     return res.status(500).json({ status: true, message: error.message });
@@ -137,9 +125,8 @@ const getNotifyList = async (req, res) => {
     const NotifyUser = await Notify.find({
       team: userId,
       isRead: { $nin: [userId] },
-    })
-      .populate("task", "title")
-      .select("team text task notiType");
+    }).populate("task", "title");
+    // .select("team text task notiType");
     res.status(200).json({ NotifyUser });
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -171,7 +158,7 @@ const updateUserProfile = async (req, res) => {
       // user.isActive = req.body.isActive || user.isActive;
       // user.isAdmin = req.body.isAdmin || user.isAdmin;
 
-      const updatedUser = await User.save();
+      const updatedUser = await user.save();
       user.password = undefined;
       res.status(200).json({
         status: true,
@@ -214,7 +201,6 @@ const markNotifyAsRead = async (req, res) => {
 };
 
 //CHANGE USER PASSWORD
-
 const changePassword = async (req, res) => {
   try {
     const { userId } = req.user;
@@ -254,12 +240,14 @@ const activateUserProfile = async (req, res) => {
       // user.isActive = req.body.isActive;
       user.isActive = !user.isActive;
       await user.save();
-      return res.status(200).json({
+       res.status(201).json({
         status: true,
         message: `User profile updated ${
           user?.isActive ? "activated" : "deactivated"
         }`,
       });
+    } else{
+      res.status(404).json({ status: false, message: "User Not Found" });
     }
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -270,10 +258,10 @@ const activateUserProfile = async (req, res) => {
 const deleteUserProfile = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await User.findById(id);
+    const user = await User.findByIdAndDelete(id);
     if (user) {
       await user.remove();
-      return res
+      res
         .status(200)
         .json({ status: true, message: "User profile deleted" });
     }
@@ -282,6 +270,7 @@ const deleteUserProfile = async (req, res) => {
   }
 };
 
+// EXPORTED MODULES
 module.exports = {
   registerUser,
   loginUser,

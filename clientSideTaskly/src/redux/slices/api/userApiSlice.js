@@ -37,7 +37,7 @@ export const userApiSlice = apiSlice.injectEndpoints({
         // USER ACTION
         userAction: builder.mutation({
             query: (data) => ({
-                url: `${USER_URL}/${data.id}`,
+                url: `${USER_URL}/${data?.id}`,
                 method: "PUT",
                 body: data,
                 credentials: "include",
@@ -73,7 +73,6 @@ export const userApiSlice = apiSlice.injectEndpoints({
                 credentials: "include",
             }),
             }),
-
 
     }),
 });

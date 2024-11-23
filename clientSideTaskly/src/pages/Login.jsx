@@ -16,6 +16,7 @@ const Login = () => {
     handleSubmit,
     formState: { errors },
   } = useForm();
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -26,9 +27,10 @@ const Login = () => {
   const submitHandler = async (data) => {
     // Handle login logic here
     try {
-      const result = await login(data);
+      const result = await login(data).unwrap();
+      // const result = await login(data);
       dispatch(setCredentials(result));
-      console.log(result);
+      // console.log(result);
       if (result?.data?.status) {
         navigate("/dashboard");
       }
@@ -41,11 +43,16 @@ const Login = () => {
 
   // NEW CODE
   // useEffect(() => {
-  //   if (!user) {
+  //   if (user) {
   //     navigate("/login");
+  //     // toast.error("Incorrect Email and Password")
   //     // console.log('USER',user)
   //   }
   // }, [user, navigate]);
+
+  useEffect(()=>{
+    user && navigate("/dashboard")
+  }, [ user, navigate ]);
 
   return (
     <div className="w-full h-screen flex items-center justify-center flex-col lg:flex-row bg-[#f3f4f6]">
@@ -107,7 +114,8 @@ const Login = () => {
                 Don't have an account?
               </span>
               {/* <span className='text-sm text-gray-500 cursor-pointer hover:text-orange-700 hover:underline'>Don't have an Account? {Register} </span> */}
-              {isLoading ? (
+             
+              { isLoading ? (
                 <Loader />
               ) : (
                 <Button

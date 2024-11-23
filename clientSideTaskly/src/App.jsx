@@ -20,7 +20,7 @@ import Navbar from './components/Navbar'
 
 import Mobile from './components/MobileSidebar'
 import { useSelector } from 'react-redux'
-import { toggleSideBar } from './redux/slices/authSlice';
+// import { toggleSideBar } from './redux/slices/authSlice';
 
 
 
@@ -45,9 +45,11 @@ function Layout() {
         </div>
       </div>
     </div>
-  ) : (
+  ) 
+  : (
       <Navigate to='/login' state={{ from: location }} replace />
     );
+  
   }
 
 
@@ -128,6 +130,7 @@ const App = () => {
     </main>
   )
 }
+
 
 export default App
 
