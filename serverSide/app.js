@@ -25,7 +25,7 @@ const PORT = process.env.PORT || 5000;
 app.use(cors(
   {
     // origin: "http://localhost:3000", // this is the frontend url
-    origin: ["http://localhost:3000", "http://localhost:3001", "https://taskly-manager.netlify.app/"],  
+    origin: ["http://localhost:3000", "http://localhost:3001", "https://taskly-manager.netlify.app"],  
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   }
