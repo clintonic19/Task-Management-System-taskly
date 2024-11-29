@@ -11,7 +11,7 @@ import {
   MdKeyboardArrowUp,
   MdKeyboardDoubleArrowUp,
 } from "react-icons/md";
-// import { users } from "../assets/DummyData";
+import { users } from "../assets/DummyData";
 import { PRIOTISETASK, RandomColor, taskType } from "../utils/Index";
 // import Card from '../components/Card';
 import Loading from "../components/Loader";
@@ -129,8 +129,8 @@ const Dashboard = () => {
     {
       _id: "1",
       label: "TOTAL TASK",
-      // totals: users?.totalTasks || 0,
-      totals: data?.data?.totalTasks || 0,
+      totals: users?.totalTasks || 0,
+      // totals: data?.data?.totalTasks || 0,
       icon: <FaNewspaper />,
       bg: "bg-orange-600",
     },
@@ -138,8 +138,8 @@ const Dashboard = () => {
     {
       _id: "2",
       label: "COMPLETED",
-      total: totals["completed"] || 0,
-      // total: totals?.completed, 
+      // total: totals["completed"] || 0,
+      total: totals?.completed, 
       // totals: ["completed"] || 0,
       icon: <MdAdminPanelSettings />,
       bg: "bg-[#0f766e]",
@@ -147,18 +147,18 @@ const Dashboard = () => {
 
     {
       _id: "3",
-      label: "IN-PROGRESS ",
-      total: totals["in-progress"] || 0,
-      // totals: ["in-progress"] || 0,
+      // label: "IN-PROGRESS ",
+      // total: totals["in-progress"] || 0,
+      totals: ["in-progress"] || 0,
       icon: <LuClipboardEdit />,
       bg: "bg-[#f59e0b]",
     },
 
     {
       _id: "4",
-      label: "TODO",
-      total: totals["todo"] || 0,
-      // totals: ["todo"],
+      // label: "TODO",
+      // total: totals["todo"] || 0,
+      totals: ["todo"],
       icon: <FaArrowsToDot />,
       bg: "bg-red-600" || 0,
     },
